@@ -49,10 +49,12 @@ void parallel_multiply_matrices_IKJ_6_fors(int r)
 	for (int i = 0; i < ROWS; i += r)
 		for (int j = 0; j < ROWS; j += r)
 			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
-				for (int ii = i; ii < i + r; ii++)
-					for (int kk = k; kk < k + r; kk++)
-						for (int jj = j; jj < j + r; jj++)
+				for (int ii = i; ii < i + r && ii < ROWS; ii++)
+					for (int kk = k; kk < k + r && kk < ROWS; kk++)
+						for (int jj = j; jj < j + r && jj < ROWS; jj++)
+						{
 							matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
+						}
 
 }
 
@@ -163,13 +165,13 @@ int main(int argc, char* argv[])
 	}
 
 
-	for (int i = 50; i <= 500; i+=50)
+	for (int r = 250; r <= 500; r+=50)
 	{
 		initialize_matricesZ();
 		start = (double)clock() / CLK_TCK;
-		parallel_multiply_matrices_IKJ_6_fors(i);
+		parallel_multiply_matrices_IKJ_6_fors(r);
 		stop = (double)clock() / CLK_TCK;
-		print_elapsed_time(sixForsTag, stop - start, i, file);
+		print_elapsed_time(sixForsTag, stop - start, r, file);
 		try
 		{
 			verify();
