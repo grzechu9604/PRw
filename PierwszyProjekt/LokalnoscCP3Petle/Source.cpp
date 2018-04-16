@@ -48,7 +48,8 @@ void verify()
 /// zdefiniowanie zawarosci poczatkowej macierzy
 void initialize_matrices()
 {
-#pragma omp parallel for 
+#pragma omp parallel 
+#pragma omp for nowait 
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLUMNS; j++) {
 			matrix_a[i][j] = (float)rand() / RAND_MAX;

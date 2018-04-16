@@ -25,8 +25,8 @@ double start;
 double stop;
 
 
-static const int ROWS = 600;     // liczba wierszy macierzy
-static const int COLUMNS = 600;  // lizba kolumn macierzy
+static const int ROWS = 500;     // liczba wierszy macierzy
+static const int COLUMNS = 500;  // lizba kolumn macierzy
 static const double EPSILON = 0.00001;
 
 float matrix_a[ROWS][COLUMNS];    // lewy operand 

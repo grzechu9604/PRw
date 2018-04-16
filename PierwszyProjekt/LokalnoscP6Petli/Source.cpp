@@ -23,10 +23,11 @@ int NumThreads;
 double start;
 double stop;
 
-static const int ROWS = 6400;     // liczba wierszy macierzy
-static const int COLUMNS = ROWS;  // lizba kolumn macierzy
+static const int N = 5824;
+static const int ROWS = N;     // liczba wierszy macierzy
+static const int COLUMNS = N;  // lizba kolumn macierzy
 static const double EPSILON = 0.00001;
-static const int R = 400;
+static const int Rp = 364;
 
 float matrix_a[ROWS][COLUMNS];    // lewy operand 
 float matrix_b[ROWS][COLUMNS];    // prawy operand
@@ -47,7 +48,7 @@ void verify()
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)
 {
-#pragma omp parallel for 
+#pragma omp parallel for schedule(static, ROWS / 4)
 	for (int i = 0; i < ROWS; i += r)
 		for (int j = 0; j < ROWS; j += r)
 			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
@@ -102,7 +103,6 @@ void initialize_matricesZ()
 /// wypisanie na konsole i do pliku wynikow czasowych obliczen
 void print_elapsed_time(string title, double time, int i, ofstream &file)
 {
-	double elapsed;
 	double resolution = 1.0 / CLK_TCK;
 
 	if (i > 0)
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 		NumThreads = 1;
 
 	char buff[500];
-	sprintf(buff, startMessagePattern, R, NumThreads);
+	sprintf(buff, startMessagePattern, Rp, NumThreads);
 	string message(buff);
 
 	file << message << endl;
@@ -141,15 +141,16 @@ int main(int argc, char* argv[])
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ_6_fors(R);
+	sequentially_multiply_matrices_IKJ_6_fors(Rp);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(seqTag, stop - start, 0, file);
 
 	initialize_matricesZ();
 	start = (double)clock() / CLK_TCK;
-	parallel_multiply_matrices_IKJ_6_fors(R);
+	parallel_multiply_matrices_IKJ_6_fors(Rp);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(parTag, stop - start, 0, file);
+
 	try
 	{
 		verify();
