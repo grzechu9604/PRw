@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Library", "PierwszyProjekt\PierwszyProjekt.vcxproj", "{1AEE1A10-969F-4B31-B71C-E0C21CEEBC26}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PierwszyProjektPRw", "PierwszyProjekt\PierwszyProjekt.vcxproj", "{1AEE1A10-969F-4B31-B71C-E0C21CEEBC26}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LokalnoscCP3Petle", "LokalnoscCP3Petle\LokalnoscCP3Petle.vcxproj", "{0F3158B1-CB7E-4A67-855E-E1CBB70A3C86}"
 EndProject
@@ -16,6 +16,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LokalnoscP6Petli", "LokalnoscP6Petli\LokalnoscP6Petli.vcxproj", "{98DE755A-CDB8-4630-A065-F236A7FBA922}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BezLokalnosci6Petli", "BezLokalnosci6Petli\BezLokalnosci6Petli.vcxproj", "{4FA65DA9-486A-459B-8190-FE7C6741E7EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DDC88C0C-57E7-4BF0-BD34-D09625D6FC42}"
+	ProjectSection(SolutionItems) = preProject
+		Constants.h = Constants.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

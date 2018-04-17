@@ -9,6 +9,8 @@
 #include <sstream>
 #include "omp.h"
 
+#include "../Constants.h"
+
 using namespace std;
 
 #define threeForsTag "3 petle"
@@ -25,8 +27,8 @@ double start;
 double stop;
 
 
-static const int ROWS = 280;     // liczba wierszy macierzy
-static const int COLUMNS = 280;  // lizba kolumn macierzy
+static const int ROWS = Ncp;     // liczba wierszy macierzy
+static const int COLUMNS = ROWS;  // lizba kolumn macierzy
 static const double EPSILON = 0.00001;
 
 float matrix_a[ROWS][COLUMNS];    // lewy operand 

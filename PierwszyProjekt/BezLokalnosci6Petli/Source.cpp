@@ -8,6 +8,8 @@
 #include <sstream>
 #include "omp.h"
 
+#include "../Constants.h"
+
 using namespace std;
 
 #define threeForsTag "3 petle"
@@ -23,11 +25,10 @@ int NumThreads;
 double start;
 double stop;
 
-static const int N = 5824;
 static const int ROWS = N;     // liczba wierszy macierzy
 static const int COLUMNS = N;  // lizba kolumn macierzy
 static const double EPSILON = 0.00001;
-static const int Rb = 1456;
+
 
 float matrix_a[ROWS][COLUMNS];    // lewy operand 
 float matrix_b[ROWS][COLUMNS];    // prawy operand
@@ -141,16 +142,31 @@ int main(int argc, char* argv[])
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ_6_fors(Rb);
+	//sequentially_multiply_matrices_IKJ_6_fors(Rb);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(seqTag, stop - start, 0, file);
 
 	initialize_matricesZ();
 	start = (double)clock() / CLK_TCK;
-	parallel_multiply_matrices_IKJ_6_fors(Rb);
+	parallel_multiply_matrices_IKJ_6_fors(Rcp);
 	stop = (double)clock() / CLK_TCK;
+	cout << Rcp << endl;
 	print_elapsed_time(parTag, stop - start, 0, file);
 
+
+	initialize_matricesZ();
+	start = (double)clock() / CLK_TCK;
+	parallel_multiply_matrices_IKJ_6_fors(Rp);
+	stop = (double)clock() / CLK_TCK;
+	cout << Rp << endl;
+	print_elapsed_time(parTag, stop - start, 0, file);
+
+	initialize_matricesZ();
+	start = (double)clock() / CLK_TCK;
+	parallel_multiply_matrices_IKJ_6_fors(Rb);
+	stop = (double)clock() / CLK_TCK;
+	cout << Rb << endl;
+	print_elapsed_time(parTag, stop - start, 0, file);
 	try
 	{
 		verify();
