@@ -243,3 +243,10 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/PierwszyProjekt/PierwszyProjekt/classic.txt
+/PierwszyProjekt/LokalnoscP6Petli/classic.txt
+/PierwszyProjekt/LokalnoscP3Petle/classic.txt
+/PierwszyProjekt/LokalnoscCP6Petli/classic.txt
+/PierwszyProjekt/LokalnoscCP3Petle/classic.txt
+/PierwszyProjekt/BezLokalnosci6Petli/classic.txt
+/PierwszyProjekt/BezLokalnosci3Petle/classic.txt
