@@ -25,8 +25,8 @@ int NumThreads;
 double start;
 double stop;
 
-static const int ROWS = N;     // liczba wierszy macierzy
-static const int COLUMNS = N;  // lizba kolumn macierzy
+static const int ROWS = N6cp;     // liczba wierszy macierzy
+static const int COLUMNS = ROWS;  // lizba kolumn macierzy
 static const double EPSILON = 0.00001;
 
 float matrix_a[ROWS][COLUMNS];    // lewy operand 
