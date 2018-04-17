@@ -15,3 +15,5 @@ static const int Np = 500;
 static const int Nb = 1000;
 
 static const int liczbaProcesorow = 4;
+
+static const int MaxM = Ns;
