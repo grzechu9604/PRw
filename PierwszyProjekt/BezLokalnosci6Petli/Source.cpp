@@ -46,22 +46,27 @@ void verify()
 			}
 }
 
+
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)
 {
-#pragma omp parallel for
-	for (int i = 0; i < ROWS; i += r)
-		for (int j = 0; j < ROWS; j += r)
-			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
-				for (int ii = i; ii < i + r && ii < ROWS; ii++)
-					for (int kk = k; kk < k + r && kk < ROWS; kk++)
-						for (int jj = j; jj < j + r && jj < ROWS; jj++)
-						{
-							matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
-						}
+#pragma omp parallel
+	{
+		HANDLE thread_handle = GetCurrentThread();
+		int th_id = omp_get_thread_num();
+		DWORD_PTR mask = (1 << (th_id % liczbaProcesorow));
+		DWORD_PTR result = SetThreadAffinityMask(thread_handle, mask);
+#pragma omp for
+		for (int i = 0; i < ROWS; i += r)
+			for (int j = 0; j < ROWS; j += r)
+				for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
+					for (int ii = i; ii < i + r && ii < ROWS; ii++)
+						for (int kk = k; kk < k + r && kk < ROWS; kk++)
+							for (int jj = j; jj < j + r && jj < ROWS; jj++)
+								matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
 
+	}
 }
-
 /// rownolegle mnozenie maciezy metoda 6 petli
 void sequentially_multiply_matrices_IKJ_6_fors(int r)
 {
@@ -142,40 +147,15 @@ int main(int argc, char* argv[])
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
-	//sequentially_multiply_matrices_IKJ_6_fors(Rb);
+	sequentially_multiply_matrices_IKJ_6_fors(Rb);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(seqTag, stop - start, 0, file);
 
 	initialize_matricesZ();
 	start = (double)clock() / CLK_TCK;
-	parallel_multiply_matrices_IKJ_6_fors(Rcp);
-	stop = (double)clock() / CLK_TCK;
-	cout << Rcp << endl;
-	print_elapsed_time(parTag, stop - start, 0, file);
-
-
-	initialize_matricesZ();
-	start = (double)clock() / CLK_TCK;
-	parallel_multiply_matrices_IKJ_6_fors(Rp);
-	stop = (double)clock() / CLK_TCK;
-	cout << Rp << endl;
-	print_elapsed_time(parTag, stop - start, 0, file);
-
-	initialize_matricesZ();
-	start = (double)clock() / CLK_TCK;
 	parallel_multiply_matrices_IKJ_6_fors(Rb);
 	stop = (double)clock() / CLK_TCK;
-	cout << Rb << endl;
 	print_elapsed_time(parTag, stop - start, 0, file);
-	try
-	{
-		verify();
-	}
-	catch (exception * e)
-	{
-		file << e->what() << endl;
-		cout << e->what() << endl;
-	}
 
 	file.close();
 

@@ -48,17 +48,22 @@ void verify()
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)
 {
-#pragma omp parallel for
-	for (int i = 0; i < ROWS; i += r)
-		for (int j = 0; j < ROWS; j += r)
-			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
-				for (int ii = i; ii < i + r && ii < ROWS; ii++)
-					for (int kk = k; kk < k + r && kk < ROWS; kk++)
-						for (int jj = j; jj < j + r && jj < ROWS; jj++)
-						{
-							matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
-						}
-
+#pragma omp parallel
+	{
+		HANDLE thread_handle = GetCurrentThread();
+		int th_id = omp_get_thread_num();
+		DWORD_PTR mask = (1 << (th_id % liczbaProcesorow));
+		DWORD_PTR result = SetThreadAffinityMask(thread_handle, mask);
+#pragma omp for
+		for (int i = 0; i < ROWS; i += r)
+			for (int j = 0; j < ROWS; j += r)
+				for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
+					for (int ii = i; ii < i + r && ii < ROWS; ii++)
+						for (int kk = k; kk < k + r && kk < ROWS; kk++)
+							for (int jj = j; jj < j + r && jj < ROWS; jj++)
+								matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
+							
+	}
 }
 
 /// rownolegle mnozenie maciezy metoda 6 petli

@@ -64,12 +64,18 @@ void initialize_matrices()
 /// rownolegle mnozenie macierzy metoda trzech petli
 void parallel_multiply_matrices_IKJ()
 {
-#pragma omp parallel for 
-	for (int i = 0; i < ROWS; i++)
-		for (int k = 0; k < COLUMNS; k++)
-			for (int j = 0; j < COLUMNS; j++)
-				matrix_r[i][j] += matrix_a[i][k] * matrix_b[k][j];
-
+#pragma omp parallel
+	{
+		HANDLE thread_handle = GetCurrentThread();
+		int th_id = omp_get_thread_num();
+		DWORD_PTR mask = (1 << (th_id % liczbaProcesorow));
+		DWORD_PTR result = SetThreadAffinityMask(thread_handle, mask);
+#pragma omp for
+		for (int i = 0; i < ROWS; i++)
+			for (int k = 0; k < COLUMNS; k++)
+				for (int j = 0; j < COLUMNS; j++)
+					matrix_r[i][j] += matrix_a[i][k] * matrix_b[k][j];
+	}
 }
 
 /// sekwencyjne mnozenie macierzy metoda trzech petli
