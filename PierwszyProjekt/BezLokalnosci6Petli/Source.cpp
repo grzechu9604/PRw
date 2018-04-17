@@ -49,7 +49,7 @@ void verify()
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)
 {
-#pragma omp parallel for schedule(static, ROWS / 4)
+#pragma omp parallel for
 	for (int i = 0; i < ROWS; i += r)
 		for (int j = 0; j < ROWS; j += r)
 			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
