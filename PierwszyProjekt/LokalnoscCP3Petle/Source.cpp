@@ -36,17 +36,6 @@ float matrix_b[ROWS][COLUMNS];    // prawy operand
 float matrix_r[ROWS][COLUMNS];    // wynik
 float true_r[ROWS][COLUMNS];    // wynik
 
-								/// zweryfikowanie poprawnosci obliczen wzgledem kodu sekwencyjnego
-void verify()
-{
-	for (int i = 0; i < ROWS; i++)
-		for (int j = 0; j < COLUMNS; j++)
-			if (true_r[i][j] - matrix_r[i][j] >= EPSILON)
-			{
-				throw new exception("Bledny wynik");
-			}
-}
-
 /// zdefiniowanie zawarosci poczatkowej macierzy
 void initialize_matrices()
 {
@@ -75,26 +64,6 @@ void parallel_multiply_matrices_IKJ()
 			for (int k = 0; k < COLUMNS; k++)
 				for (int j = 0; j < COLUMNS; j++)
 					matrix_r[i][j] += matrix_a[i][k] * matrix_b[k][j];
-	}
-}
-
-/// sekwencyjne mnozenie macierzy metoda trzech petli
-void sequentially_multiply_matrices_IKJ()
-{
-	for (int i = 0; i < ROWS; i++)
-		for (int k = 0; k < COLUMNS; k++)
-			for (int j = 0; j < COLUMNS; j++)
-				true_r[i][j] += matrix_a[i][k] * matrix_b[k][j];
-
-}
-
-void initialize_matricesZ()
-{
-	//#pragma omp parallel for 
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLUMNS; j++) {
-			matrix_r[i][j] = 0.0;
-		}
 	}
 }
 
@@ -141,26 +110,10 @@ int main()
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ();
-	stop = (double)clock() / CLK_TCK;
-	print_elapsed_time(seqTag, stop - start, 0, file);
-
-	initialize_matricesZ();
-	start = (double)clock() / CLK_TCK;
 	parallel_multiply_matrices_IKJ();
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(parTag, stop - start, 0, file);
-	try
-	{
-		verify();
-	}
-	catch (exception * e)
-	{
-		file << e->what() << endl;
-		cout << e->what() << endl;
-	}
-
-
-
+	file.close();
+	
 	return 0;
 }

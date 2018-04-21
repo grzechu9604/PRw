@@ -99,11 +99,11 @@ int main()
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(stop - start, N6cp, file);
 
-	initialize_matrices();
-	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ(Ns);
-	stop = (double)clock() / CLK_TCK;
-	print_elapsed_time(stop - start, Ns, file);
+	//initialize_matrices();
+	//start = (double)clock() / CLK_TCK;
+	//sequentially_multiply_matrices_IKJ(Ns);
+	//stop = (double)clock() / CLK_TCK;
+	//print_elapsed_time(stop - start, Ns, file);
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
@@ -122,6 +122,8 @@ int main()
 	sequentially_multiply_matrices_IKJ(Nb);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(stop - start, Nb, file);
+
+	file.close();
 
 	return 0;
 }

@@ -34,16 +34,6 @@ float matrix_b[ROWS][COLUMNS];    // prawy operand
 float matrix_r[ROWS][COLUMNS];    // wynik
 float true_r[ROWS][COLUMNS];    // wynik
 
-								/// zweryfikowanie poprawnosci obliczen wzgledem kodu sekwencyjnego
-void verify()
-{
-	for (int i = 0; i < ROWS; i++)
-		for (int j = 0; j < COLUMNS; j++)
-			if (true_r[i][j] - matrix_r[i][j] >= EPSILON)
-			{
-				throw new exception("Bledny wynik");
-			}
-}
 
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)

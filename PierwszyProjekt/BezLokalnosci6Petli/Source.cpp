@@ -67,20 +67,6 @@ void parallel_multiply_matrices_IKJ_6_fors(int r)
 
 	}
 }
-/// rownolegle mnozenie maciezy metoda 6 petli
-void sequentially_multiply_matrices_IKJ_6_fors(int r)
-{
-	for (int i = 0; i < ROWS; i += r)
-		for (int j = 0; j < ROWS; j += r)
-			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
-				for (int ii = i; ii < i + r && ii < ROWS; ii++)
-					for (int kk = k; kk < k + r && kk < ROWS; kk++)
-						for (int jj = j; jj < j + r && jj < ROWS; jj++)
-						{
-							matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
-						}
-
-}
 
 /// zdefiniowanie zawarosci poczatkowej macierzy
 void initialize_matrices()
@@ -95,16 +81,6 @@ void initialize_matrices()
 	}
 }
 
-/// wyzerowanie macierzy wynikow
-void initialize_matricesZ()
-{
-	//#pragma omp parallel for 
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLUMNS; j++) {
-			matrix_r[i][j] = 0.0;
-		}
-	}
-}
 
 /// wypisanie na konsole i do pliku wynikow czasowych obliczen
 void print_elapsed_time(string title, double time, int i, ofstream &file)
@@ -146,12 +122,6 @@ int main(int argc, char* argv[])
 	cout << message << endl;
 
 	initialize_matrices();
-	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ_6_fors(Rb);
-	stop = (double)clock() / CLK_TCK;
-	print_elapsed_time(seqTag, stop - start, 0, file);
-
-	initialize_matricesZ();
 	start = (double)clock() / CLK_TCK;
 	parallel_multiply_matrices_IKJ_6_fors(Rb);
 	stop = (double)clock() / CLK_TCK;

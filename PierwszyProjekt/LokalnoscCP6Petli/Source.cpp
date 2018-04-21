@@ -34,17 +34,6 @@ float matrix_b[ROWS][COLUMNS];    // prawy operand
 float matrix_r[ROWS][COLUMNS];    // wynik
 float true_r[ROWS][COLUMNS];    // wynik
 
-								/// zweryfikowanie poprawnosci obliczen wzgledem kodu sekwencyjnego
-void verify()
-{
-	for (int i = 0; i < ROWS; i++)
-		for (int j = 0; j < COLUMNS; j++)
-			if (true_r[i][j] - matrix_r[i][j] >= EPSILON)
-			{
-				throw new exception("Bledny wynik");
-			}
-}
-
 /// rownolegle mnozenie maciezy metoda 6 petli
 void parallel_multiply_matrices_IKJ_6_fors(int r)
 {
@@ -66,21 +55,6 @@ void parallel_multiply_matrices_IKJ_6_fors(int r)
 	}
 }
 
-/// rownolegle mnozenie maciezy metoda 6 petli
-void sequentially_multiply_matrices_IKJ_6_fors(int r)
-{
-	for (int i = 0; i < ROWS; i += r)
-		for (int j = 0; j < ROWS; j += r)
-			for (int k = 0; k < ROWS; k += r) // kolejne fragmenty
-				for (int ii = i; ii < i + r && ii < ROWS; ii++)
-					for (int kk = k; kk < k + r && kk < ROWS; kk++)
-						for (int jj = j; jj < j + r && jj < ROWS; jj++)
-						{
-							matrix_r[ii][jj] += matrix_a[ii][kk] * matrix_b[kk][jj];
-						}
-
-}
-
 /// zdefiniowanie zawarosci poczatkowej macierzy
 void initialize_matrices()
 {
@@ -89,17 +63,6 @@ void initialize_matrices()
 		for (int j = 0; j < COLUMNS; j++) {
 			matrix_a[i][j] = (float)rand() / RAND_MAX;
 			matrix_b[i][j] = (float)rand() / RAND_MAX;
-			matrix_r[i][j] = 0.0;
-		}
-	}
-}
-
-/// wyzerowanie macierzy wynikow
-void initialize_matricesZ()
-{
-	//#pragma omp parallel for 
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLUMNS; j++) {
 			matrix_r[i][j] = 0.0;
 		}
 	}
@@ -146,26 +109,9 @@ int main(int argc, char* argv[])
 
 	initialize_matrices();
 	start = (double)clock() / CLK_TCK;
-	sequentially_multiply_matrices_IKJ_6_fors(Rcp);
-	stop = (double)clock() / CLK_TCK;
-	print_elapsed_time(seqTag, stop - start, 0, file);
-
-	initialize_matricesZ();
-	start = (double)clock() / CLK_TCK;
 	parallel_multiply_matrices_IKJ_6_fors(Rcp);
 	stop = (double)clock() / CLK_TCK;
 	print_elapsed_time(parTag, stop - start, 0, file);
-
-	try
-	{
-		verify();
-	}
-	catch (exception * e)
-	{
-		file << e->what() << endl;
-		cout << e->what() << endl;
-	}
-
 	file.close();
 
 	return(0);
