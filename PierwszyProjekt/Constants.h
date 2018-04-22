@@ -2,8 +2,8 @@ static const int N6b = 2400;
 static const int Rb = 600;
 static const int N6p = 1600;
 static const int Rp = 400;
-static const int N6cp = 1024;
-static const int Rcp = 256;
+static const int N6cp = 1200;
+static const int Rcp = 300;
 
 static const int Ns = 5824;
 static const int Rbs = 1456;
