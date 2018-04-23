@@ -1,0 +1,2 @@
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 900, liczba watkow 4
+Par: Czas wykonania programu:   0.1150 sec (0.0010 sec rozdzielczosc pomiaru)

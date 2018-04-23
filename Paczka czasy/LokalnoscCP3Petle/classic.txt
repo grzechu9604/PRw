@@ -1,0 +1,10 @@
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 290, liczba watkow 4
+Par: Czas wykonania programu:   0.0030 sec (0.0010 sec rozdzielczosc pomiaru)
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 290, liczba watkow 4
+Par: Czas wykonania programu:   0.0290 sec (0.0010 sec rozdzielczosc pomiaru)
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 290, liczba watkow 4
+Par: Czas wykonania programu:   0.0020 sec (0.0010 sec rozdzielczosc pomiaru)
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 290, liczba watkow 4
+Par: Czas wykonania programu:   0.0120 sec (0.0010 sec rozdzielczosc pomiaru)
+Klasyczny algorytm mnozenia macierzy (IKJ) M = 290, liczba watkow 4
+Par: Czas wykonania programu:   0.0030 sec (0.0010 sec rozdzielczosc pomiaru)

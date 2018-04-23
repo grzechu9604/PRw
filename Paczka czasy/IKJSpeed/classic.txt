@@ -1,0 +1,6 @@
+Czas przetwarzania 11.904000 dla macierzy o rozmiarze 2400 (rozdzielczoœæ 0.001000)
+Czas przetwarzania 3.602000 dla macierzy o rozmiarze 1600 (rozdzielczoœæ 0.001000)
+Czas przetwarzania 1.010000 dla macierzy o rozmiarze 1200 (rozdzielczoœæ 0.001000)
+Czas przetwarzania 0.012000 dla macierzy o rozmiarze 290 (rozdzielczoœæ 0.001000)
+Czas przetwarzania 0.072000 dla macierzy o rozmiarze 500 (rozdzielczoœæ 0.001000)
+Czas przetwarzania 0.382000 dla macierzy o rozmiarze 900 (rozdzielczoœæ 0.001000)
