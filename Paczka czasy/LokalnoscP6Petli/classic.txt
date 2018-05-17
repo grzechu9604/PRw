@@ -1,2 +1,0 @@
-6 petlowy algorytm mnozenia maciezy dla r = 400, liczba watkow 4
-Par: Czas wykonania programu:   2.1610 sec (0.0010 sec rozdzielczosc pomiaru)
