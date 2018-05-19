@@ -1,0 +1,2 @@
+# PRw
+Programowanie równoległe
