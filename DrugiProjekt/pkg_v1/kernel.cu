@@ -3,17 +3,6 @@ jeden blok w¹tków przetwarzania, obliczenia przy wykorzystaniu pamiêci globalnej
 mno¿enie dowolnych tablic o rozmiarach bêd¹cych wielokrotnoœci¹ rozmiaru bloku w¹tków.
 */
 
-/**
- * Matrix multiplication: C = A * B.
- * Host code.jk
- *
- * This sample implements matrix multiplication which makes use of shared memory
- * to ensure data reuse, the matrix multiplication is done using tiling approach.
- * It has been written for clarity of exposition to illustrate various CUDA programming
- * principles, not with the goal of providing the most performant generic kernel for matrix multiplication.
-
- */
-
 // System includes
 #include <stdio.h>
 #include <assert.h>
@@ -25,84 +14,6 @@ mno¿enie dowolnych tablic o rozmiarach bêd¹cych wielokrotnoœci¹ rozmiaru bloku w
 #include <helper_functions.h>
 #include <helper_cuda.h>
 #include <conio.h>
-
-/**
- * Matrix multiplication (CUDA Kernel) on the device: C = A * B
- * wA is A's width and wB is B's width
- */
-template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A,
-                                                        float *B, int wA,
-                                                        int wB) {
-    // Block index
-    int bx = blockIdx.x;
-    int by = blockIdx.y;
-
-    // Thread index
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-
-    // Index of the first sub-matrix of A processed by the block
-    int aBegin = wA * BLOCK_SIZE * by;
-
-    // Index of the last sub-matrix of A processed by the block
-    int aEnd   = aBegin + wA - 1;
-
-    // Step size used to iterate through the sub-matrices of A
-    int aStep  = BLOCK_SIZE;
-
-    // Index of the first sub-matrix of B processed by the block
-    int bBegin = BLOCK_SIZE * bx;
-
-    // Step size used to iterate through the sub-matrices of B
-    int bStep  = BLOCK_SIZE * wB;
-
-    // Csub is used to store the element of the block sub-matrix
-    // that is computed by the thread
-    float Csub = 0;
-
-    // Loop over all the sub-matrices of A and B
-    // required to compute the block sub-matrix
-    for (int a = aBegin, b = bBegin;
-            a <= aEnd;
-            a += aStep, b += bStep) {
-        // Declaration of the shared memory array As used to
-        // store the sub-matrix of A
-        __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
-
-        // Declaration of the shared memory array Bs used to
-        // store the sub-matrix of B
-        __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
-
-        // Load the matrices from device memory
-        // to shared memory; each thread loads
-        // one element of each matrix
-        As[ty][tx] = A[a + wA * ty + tx];
-        Bs[ty][tx] = B[b + wB * ty + tx];
-
-        // Synchronize to make sure the matrices are loaded
-        __syncthreads();
-
-        // Multiply the two matrices together;
-        // each thread computes one element
-        // of the block sub-matrix
-#pragma unroll
-
-        for (int k = 0; k < BLOCK_SIZE; ++k) {
-            Csub += As[ty][k] * Bs[k][tx];
-        }
-
-        // Synchronize to make sure that the preceding
-        // computation is done before loading two new
-        // sub-matrices of A and B in the next iteration
-        __syncthreads();
-    }
-
-    // Write the block sub-matrix to device memory;
-    // each thread writes one element
-    int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
-    C[c + wB * ty + tx] = Csub;
-}
-
 
 template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd, float *Cd, int WIDTH) {
 	int tx = threadIdx.x;
@@ -145,7 +56,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     float *d_A, *d_B, *d_C;
 
     // Allocate host matrix C
-    dim3 dimsC(dimsB.x, dimsA.y, 1);
+    dim3 dimsC(dimsA.x, dimsA.y, 1);
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
     float *h_C = reinterpret_cast<float *>(malloc(mem_size_C));
 
@@ -168,14 +79,8 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 
     // Create and start timer
     printf("Computing result using CUDA Kernel...\n");
-
     // Performs warmup operation using matrixMul CUDA kernel
-	if (block_size == 16) {
-		MatrixMulKernel_1<16> <<< grid, threads >>> (d_A, d_B, d_C, block_size);
-	}
-	else {
-		MatrixMulKernel_1<32> <<< grid, threads >>> (d_A, d_B, d_C, block_size);
-	}
+	MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, block_size);
 
     printf("done\n");
     cudaDeviceSynchronize();
@@ -191,12 +96,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     // Execute the kernel
     int nIter = 300;
     for (int j = 0; j < nIter; j++) {
-		if (block_size == 16) {
-			MatrixMulKernel_1<16> <<< grid, threads >>> (d_A, d_B, d_C, block_size);
-		}
-		else {
-			MatrixMulKernel_1<32> <<< grid, threads >>> (d_A, d_B, d_C, block_size);
-		}
+		MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, block_size);
     }
     // Record the stop event
     checkCudaErrors(cudaEventRecord(stop, NULL));
@@ -205,6 +105,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 
     float msecTotal = 0.0f;
     checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
+
     // Compute and print the performance
     float msecPerMatrixMul = msecTotal / nIter;
     double flopsPerMatrixMul = 2.0 * static_cast<double>(dimsA.x) *
@@ -234,8 +135,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
         double rel_err = abs_err / abs_val / dot_length;
 
         if (rel_err > eps) {
-            printf("Error! Matrix[%05d]=%.8f, ref=%.8f error term is > %E\n",
-                   i, h_C[i], dimsA.x * valB, eps);
+            printf("Error! Matrix[%05d]=%.8f, ref=%.8f error term is > %E\n", i, h_C[i], dimsA.x * valB, eps);
             correct = false;
         }
     }
