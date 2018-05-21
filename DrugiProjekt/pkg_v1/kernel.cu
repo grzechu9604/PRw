@@ -21,13 +21,15 @@ template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd
 	float C_local = 0;
 
 	for (int k = 0; k < WIDTH; k++) {
-		float A_d_element = Ad[BLOCK_SIZE * iteration % WIDTH + ty +  WIDTH * k]; // OK
-		float B_d_element = Bd[k + tx * WIDTH + (iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE]; // +BLOCK_SIZE * iteration];  // Bd[k * WIDTH + tx];
+		float A_d_element = Ad[k + ty * WIDTH + (iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE];
+		float B_d_element = Bd[iteration * BLOCK_SIZE % WIDTH + tx + WIDTH * k];
 		C_local += A_d_element * B_d_element;
 	}
 
-	Cd[(iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE] = C_local;
-	//Cd[ty * WIDTH + BLOCK_SIZE * iteration + tx] = C_local;
+	Cd[(iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE // odepchniêcie siê do koñca poprzenich iteracji
+	+ iteration % (WIDTH / BLOCK_SIZE) * BLOCK_SIZE + tx // odepchniêcie siê do w³aœciwej kolumny
+	+ ty * WIDTH // odepchniêcie siê do w³aœciwego wiersza
+	] = C_local;
 }
 
 void ConstantInit(float *data, int size, float val) {
@@ -60,13 +62,10 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     dim3 dimsC(dimsA.x, dimsA.y, 1);
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
     float *h_C = reinterpret_cast<float *>(malloc(mem_size_C));
-
     if (h_C == NULL) {
         fprintf(stderr, "Failed to allocate host matrix C!\n");
         exit(EXIT_FAILURE);
     }
-
-	//ConstantInit(h_C, dimsC.x * dimsC.y, 0.0f);
 
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
@@ -84,7 +83,6 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     printf("Computing result using CUDA Kernel...\n");
     // Performs warmup operation using matrixMul CUDA kernel
 	MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x, 2);
-
     printf("done\n");
     cudaDeviceSynchronize();
 
@@ -93,14 +91,15 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     checkCudaErrors(cudaEventCreate(&start));
     cudaEvent_t stop;
     checkCudaErrors(cudaEventCreate(&stop));
-
     // Record the start event
     checkCudaErrors(cudaEventRecord(start, NULL));
+
     // Execute the kernel
     int nIter = dimsA.x * dimsA.x / block_size / block_size;
     for (int j = 0; j < nIter; j++) {
 		MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x, j);
     }
+
     // Record the stop event
     checkCudaErrors(cudaEventRecord(stop, NULL));
     // Wait for the stop event to complete
@@ -108,7 +107,6 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 
     float msecTotal = 0.0f;
     checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
-
     // Compute and print the performance
     float msecPerMatrixMul = msecTotal / nIter;
     double flopsPerMatrixMul = 2.0 * static_cast<double>(dimsA.x) *
@@ -152,9 +150,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     checkCudaErrors(cudaFree(d_B));
     checkCudaErrors(cudaFree(d_C));
 
-    printf("\nNOTE: The CUDA Samples are not meant for performance"\
-           "measurements. Results may vary when GPU Boost is enabled.\n");
-
+    //Results may vary when GPU Boost is enabled?
     if (correct) {
         return EXIT_SUCCESS;
     } else {
