@@ -132,6 +132,9 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 		exit(EXIT_FAILURE);
 	}
 
+
+	ConstantInit(h_C, dimsC.x * dimsC.y, 1.0f);
+
 	checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
 	checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
 	checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_C), mem_size_C));
@@ -141,8 +144,8 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 	checkCudaErrors(cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
 
 	// Setup execution parameters
-	dim3 threads(block_size, block_size);
-	dim3 grid(1, 1);
+	dim3 threads(block_size, 1);
+	dim3 grid(1, 1); //DLACZEGO (1,1)?
 
 	// Create and start timer
 	printf("Computing result using CUDA Kernel...\n");
@@ -193,7 +196,7 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 	bool correct = true;
 	// test relative error by the formula
 	//     |<x, y>_cpu - <x,y>_gpu|/<|x|, |y|>  < eps
-	double eps = 1.e-6;  // machine zero
+	double eps = 1.e-2;  // machine zero
 	for (int i = 0; i < static_cast<int>(dimsC.x * dimsC.y); i++) {
 		double abs_err = fabs(h_C[i] - (dimsA.x * valB));
 		double dot_length = dimsA.x;
