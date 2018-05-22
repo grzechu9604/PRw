@@ -14,21 +14,23 @@ mno¿enie dowolnych tablic o rozmiarach bêd¹cych wielokrotnoœci¹ rozmiaru bloku w
 #include <helper_functions.h>
 #include <helper_cuda.h>
 #include <conio.h>
+#define SIZE_OF_BLOCK 16
+#define SIZE_OF_ARRAY 160
 
-template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd, float *Cd, int WIDTH, int iteration) {
+template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd, float *Cd, int iteration) {
 	int tx = threadIdx.x;
 	int ty = threadIdx.y;
 	float C_local = 0;
 
-	for (int k = 0; k < WIDTH; k++) {
-		float A_d_element = Ad[k + ty * WIDTH + (iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE];
-		float B_d_element = Bd[iteration * BLOCK_SIZE % WIDTH + tx + WIDTH * k];
+	for (int k = 0; k < SIZE_OF_ARRAY; k++) {
+		float A_d_element = Ad[k + ty * SIZE_OF_ARRAY + (iteration / (SIZE_OF_ARRAY / BLOCK_SIZE)) * SIZE_OF_ARRAY * BLOCK_SIZE];
+		float B_d_element = Bd[iteration * BLOCK_SIZE % SIZE_OF_ARRAY + tx + SIZE_OF_ARRAY * k];
 		C_local += A_d_element * B_d_element;
 	}
 
-	Cd[(iteration / (WIDTH / BLOCK_SIZE)) * WIDTH * BLOCK_SIZE // odepchniêcie siê do koñca poprzenich iteracji
-	+ iteration % (WIDTH / BLOCK_SIZE) * BLOCK_SIZE + tx // odepchniêcie siê do w³aœciwej kolumny
-	+ ty * WIDTH // odepchniêcie siê do w³aœciwego wiersza
+	Cd[(iteration / (SIZE_OF_ARRAY / BLOCK_SIZE)) * SIZE_OF_ARRAY * BLOCK_SIZE // odepchniêcie siê do koñca poprzenich iteracji
+	+ iteration % (SIZE_OF_ARRAY / BLOCK_SIZE) * BLOCK_SIZE + tx // odepchniêcie siê do w³aœciwej kolumny
+	+ ty * SIZE_OF_ARRAY // odepchniêcie siê do w³aœciwego wiersza
 	] = C_local;
 }
 
@@ -41,7 +43,7 @@ void ConstantInit(float *data, int size, float val) {
 /**
  * Run a simple test of matrix multiplication using CUDA
  */
-int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
+int MatrixMultiply(const dim3 &dimsA, const dim3 &dimsB) {
     // Allocate host memory for matrices A and B
     unsigned int size_A = dimsA.x * dimsA.y;
     unsigned int mem_size_A = sizeof(float) * size_A;
@@ -76,13 +78,13 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     checkCudaErrors(cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
 
     // Setup execution parameters
-    dim3 threads(block_size, block_size);
+    dim3 threads(SIZE_OF_BLOCK, SIZE_OF_BLOCK);
     dim3 grid(1, 1);
 
     // Create and start timer
     printf("Computing result using CUDA Kernel...\n");
     // Performs warmup operation using matrixMul CUDA kernel
-	MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x, 2);
+	MatrixMulKernel_1<SIZE_OF_BLOCK><<<grid,threads>>>(d_A, d_B, d_C, 2);
     printf("done\n");
     cudaDeviceSynchronize();
 
@@ -95,9 +97,9 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
     checkCudaErrors(cudaEventRecord(start, NULL));
 
     // Execute the kernel
-    int nIter = dimsA.x * dimsA.x / block_size / block_size;
+    int nIter = dimsA.x * dimsA.x / SIZE_OF_BLOCK / SIZE_OF_BLOCK;
     for (int j = 0; j < nIter; j++) {
-		MatrixMulKernel_1<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x, j);
+		MatrixMulKernel_1<SIZE_OF_BLOCK><<<grid,threads>>>(d_A, d_B, d_C, j);
     }
 
     // Record the stop event
@@ -164,15 +166,14 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 int main(int argc, char **argv) {
     printf("[Matrix Multiply Using CUDA] - Starting...\n");
     int dev = findCudaDevice(argc, (const char **)argv);
-    int block_size = 16;
-    dim3 dimsA(5 * 2 * block_size, 5 * 2 * block_size, 1);
-    dim3 dimsB(5 * 2 * block_size, 5 * 2 * block_size, 1);
+    dim3 dimsA(SIZE_OF_ARRAY, SIZE_OF_ARRAY, 1);
+    dim3 dimsB(SIZE_OF_ARRAY, SIZE_OF_ARRAY, 1);
     if (dimsA.x != dimsB.y) {
         printf("Error: outer matrix dimensions must be equal. (%d != %d)\n", dimsA.x, dimsB.y);
         exit(EXIT_FAILURE);
     }
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y, dimsB.x, dimsB.y);
-    int matrix_result = MatrixMultiply(block_size, dimsA, dimsB);
+    int matrix_result = MatrixMultiply(dimsA, dimsB);
 	printf("End of program [matrix_result = %d]\n", matrix_result);
 	getch();
     exit(matrix_result);
