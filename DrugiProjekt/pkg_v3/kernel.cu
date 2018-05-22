@@ -83,17 +83,9 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 	checkCudaErrors(cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
 
-
-//#########################################################################################
 	// Setup execution parameters
 	dim3 threads(block_size, block_size);
 	dim3 grid(ceil(dimsA.x/ block_size), ceil(dimsA.x / block_size));
-
-	// Create and start timer
-	//printf("Computing result using CUDA Kernel...\n");
-	// Performs warmup operation using matrixMul CUDA kernel
-	//MatrixMulKernel_3<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x);
-	//printf("done\n");
 	cudaDeviceSynchronize();
 
 	// Allocate CUDA events that we'll use for timing
@@ -105,18 +97,13 @@ int MatrixMultiply(int block_size, const dim3 &dimsA, const dim3 &dimsB) {
 	checkCudaErrors(cudaEventRecord(start, NULL));
 
 	// Execute the kernel
-	//int nIter = sqrt(dimsA.x * / block_size);
-	int nIter = 1;
-	//for (int j = 0; j < nIter; j++) {
-	MatrixMulKernel_3<16><<<grid,threads>>>(d_A, d_B, d_C, dimsA.x);
-	//}
+	int nIter = grid.x * grid.y;
+	MatrixMulKernel_3<16> <<<grid, threads>>> (d_A, d_B, d_C, dimsA.x);
 
 	// Record the stop event
 	checkCudaErrors(cudaEventRecord(stop, NULL));
 	// Wait for the stop event to complete
 	checkCudaErrors(cudaEventSynchronize(stop));
-//#########################################################################################
-
 
 	float msecTotal = 0.0f;
 	checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
