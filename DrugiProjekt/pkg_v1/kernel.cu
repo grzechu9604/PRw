@@ -21,17 +21,12 @@ template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd
 	int tx = threadIdx.x;
 	int ty = threadIdx.y;
 	float C_local = 0;
-
 	for (int k = 0; k < SIZE_OF_ARRAY; k++) {
 		float A_d_element = Ad[k + ty * SIZE_OF_ARRAY + (iteration / (SIZE_OF_ARRAY / BLOCK_SIZE)) * SIZE_OF_ARRAY * BLOCK_SIZE];
 		float B_d_element = Bd[iteration * BLOCK_SIZE % SIZE_OF_ARRAY + tx + SIZE_OF_ARRAY * k];
 		C_local += A_d_element * B_d_element;
 	}
-
-	Cd[(iteration / (SIZE_OF_ARRAY / BLOCK_SIZE)) * SIZE_OF_ARRAY * BLOCK_SIZE // odepchniêcie siê do koñca poprzenich iteracji
-	+ iteration % (SIZE_OF_ARRAY / BLOCK_SIZE) * BLOCK_SIZE + tx // odepchniêcie siê do w³aœciwej kolumny
-	+ ty * SIZE_OF_ARRAY // odepchniêcie siê do w³aœciwego wiersza
-	] = C_local;
+	Cd[(iteration / (SIZE_OF_ARRAY / BLOCK_SIZE)) * SIZE_OF_ARRAY * BLOCK_SIZE + iteration % (SIZE_OF_ARRAY / BLOCK_SIZE) * BLOCK_SIZE + tx + ty * SIZE_OF_ARRAY] = C_local;
 }
 
 void ConstantInit(float *data, int size, float val) {

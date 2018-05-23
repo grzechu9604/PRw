@@ -30,18 +30,15 @@ template <int BLOCK_SIZE> __global__ void MatrixMulKernel_5(float *Ad, float *Bd
 	const int  newBlockSize = BLOCK_SIZE*A_ELEMENTS;
 	__shared__ float Ads[SIZE_OF_BLOCK*A_ELEMENTS][SIZE_OF_BLOCK*A_ELEMENTS];
 	__shared__ float Bds[SIZE_OF_BLOCK*A_ELEMENTS][SIZE_OF_BLOCK*A_ELEMENTS];
-
 	for (int m = 0; m < SIZE_OF_ARRAY / (BLOCK_SIZE*A_ELEMENTS); m++) {
 		Ads[tx][ty] = Ad[m*(BLOCK_SIZE*A_ELEMENTS) + Row*SIZE_OF_ARRAY];
 		Bds[tx][ty] = Bd[(m*(BLOCK_SIZE*A_ELEMENTS))*SIZE_OF_ARRAY + Col];
 		Ads[tx + 1][ty] = Ad[m*(BLOCK_SIZE*A_ELEMENTS) + Row*SIZE_OF_ARRAY + 1];
 		Bds[tx + 1][ty] = Bd[(m*(BLOCK_SIZE*A_ELEMENTS) + 1)*SIZE_OF_ARRAY + Col];
-
 		Ads[tx][ty+1] = Ad[m*(BLOCK_SIZE*A_ELEMENTS) + (Row+1)*SIZE_OF_ARRAY];
 		Bds[tx][ty+1] = Bd[(m*(BLOCK_SIZE*A_ELEMENTS))*SIZE_OF_ARRAY + Col+1];
 		Ads[tx+1][ty+1] = Ad[m*(BLOCK_SIZE*A_ELEMENTS) + (Row + 1)*SIZE_OF_ARRAY];
 		Bds[tx+1][ty+1] = Bd[(m*(BLOCK_SIZE*A_ELEMENTS)+1)*SIZE_OF_ARRAY + Col+1];
-
 		__syncthreads();
 		for (int k = 0; k < (BLOCK_SIZE*A_ELEMENTS); k++) {
 			C_local_1 += Ads[tx][k] * Bds[k][ty];
@@ -52,7 +49,6 @@ template <int BLOCK_SIZE> __global__ void MatrixMulKernel_5(float *Ad, float *Bd
 		}
 		__syncthreads();
 	}
-
 	Cd[Row * SIZE_OF_ARRAY + Col] = C_local_1;
 	Cd[Row * SIZE_OF_ARRAY + 1 + Col] = C_local_3;
 	Cd[(Row+1) * SIZE_OF_ARRAY + Col] = C_local_2;
