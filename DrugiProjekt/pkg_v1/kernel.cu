@@ -14,8 +14,8 @@ mno¿enie dowolnych tablic o rozmiarach bêd¹cych wielokrotnoœci¹ rozmiaru bloku w
 #include <helper_functions.h>
 #include <helper_cuda.h>
 #include <conio.h>
-#define SIZE_OF_BLOCK 16
-#define SIZE_OF_ARRAY 160
+#define SIZE_OF_BLOCK 32
+#define SIZE_OF_ARRAY 2048
 
 template <int BLOCK_SIZE> __global__ void MatrixMulKernel_1(float *Ad, float *Bd, float *Cd, int iteration) {
 	int tx = threadIdx.x;
@@ -170,6 +170,6 @@ int main(int argc, char **argv) {
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y, dimsB.x, dimsB.y);
     int matrix_result = MatrixMultiply(dimsA, dimsB);
 	printf("End of program [matrix_result = %d]\n", matrix_result);
-	getch();
+	//getch();
     exit(matrix_result);
 }
