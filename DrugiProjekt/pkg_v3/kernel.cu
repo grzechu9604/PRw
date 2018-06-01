@@ -16,7 +16,7 @@ obliczenia przy wykorzystaniu pamiêci wspó³dzielonej bloku w¹tków,
 #include <helper_cuda.h>
 #include <conio.h>
 #define SIZE_OF_BLOCK 32
-#define SIZE_OF_ARRAY 1024
+#define SIZE_OF_ARRAY 512
 
 template <int BLOCK_SIZE> __global__ void MatrixMulKernel_3(float *Ad, float *Bd, float *Cd) {
 	int tx = threadIdx.x;
